@@ -34,7 +34,7 @@ steps:
 
 - task: AzureWebApp@1
   inputs:
-    azureSubscription: 'Deepankyadav1' # <-- Service Connection name in Azure DevOps
+    azureSubscription: 'github.com_Deepankyadav1' # <-- Service Connection name in Azure DevOps
     appType: 'webApp'  # Use 'webAppLinux' if using Linux App Service
     appName: '$(azureAppName)'  # From variables above
     package: '$(Build.ArtifactStagingDirectory)'  # Path to published output
