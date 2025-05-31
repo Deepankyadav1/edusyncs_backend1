@@ -1,0 +1,14 @@
+﻿bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+*.pid
+*.tmp
+appsettings.json
+appsettings.Development.json
+TestResults/
+publish/
+.env
+.idea/
