@@ -1,0 +1,41 @@
+# azure-pipelines-backend.yml
+# This pipeline builds and deploys the EduSync ASP.NET Core backend to Azure App Service
+
+trigger:
+- main  # Run pipeline when code is pushed to the main branch
+
+pool:
+  vmImage: 'ubuntu-latest' # Use 'windows-latest' if App Service is on Windows
+
+variables:
+  buildConfiguration: 'Release'
+  azureAppName: 'edusyncbackend5011' # <-- Replace with your actual App Service name
+  projectPath: 'EduSync\EduSync.csproj' # <-- Adjust this path if your .csproj file is elsewhere
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'  # .NET SDK version
+  displayName: 'Install .NET SDK'
+
+- script: dotnet restore $(projectPath)
+  displayName: 'Restore NuGet Packages'
+
+- script: dotnet build $(projectPath) --configuration $(buildConfiguration) --no-restore
+  displayName: 'Build Project'
+
+# Uncomment this section if you have tests
+- script: dotnet test EduSync.Tests/EduSync.Tests.csproj --no-build --verbosity normal
+  displayName: 'Run Unit Tests'
+
+- script: dotnet publish $(projectPath) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) --no-build
+  displayName: 'Publish Project'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'EduSyncAzureConnection' # <-- Service Connection name in Azure DevOps
+    appType: 'webApp'  # Use 'webAppLinux' if using Linux App Service
+    appName: '$(azureAppName)'  # From variables above
+    package: '$(Build.ArtifactStagingDirectory)'  # Path to published output
+  displayName: 'Deploy to Azure App Service'
