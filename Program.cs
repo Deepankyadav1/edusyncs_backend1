@@ -1,4 +1,4 @@
-﻿using EduSync.Data;
+using EduSync.Data;
 using EduSync.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔧 Add Services to the Container
 // ------------------------------
 
-// ✅ Controllers + JSON cycle prevention (important for EF Core nav properties)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
-// ✅ Swagger (only in development by default)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ✅ Database Context (SQL Server)
 var config = builder.Configuration;
 
-// 🌐 Check connection string
 var connectionString = config.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
@@ -38,7 +34,6 @@ else
     Console.WriteLine("✅ Connection string loaded.");
 }
 
-// 🌐 Check JWT
 Console.WriteLine("✅ JWT Config Check: ");
 Console.WriteLine("Issuer: " + config["Jwt:Issuer"]);
 Console.WriteLine("Audience: " + config["Jwt:Audience"]);
@@ -47,23 +42,19 @@ Console.WriteLine("Key Present: " + (!string.IsNullOrEmpty(config["Jwt:Key"])));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
-// ✅ CORS (allow React frontend on localhost)
+// ✅ CORS (updated to allow Azure Static Web App frontend)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+        policy.WithOrigins("https://calm-bay-0b83b9a00.6.azurestaticapps.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-// ✅ Dependency Injection for Custom Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-
-// ✅ JWT Authentication Setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -80,29 +71,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
-// ✅ Authorization (based on [Authorize] and roles)
 builder.Services.AddAuthorization();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:ConnectionString"]);
-// ------------------------------
-// 🚀 Build and Configure HTTP Pipeline
-// ------------------------------
+
 var app = builder.Build();
 
-// ✅ Swagger (only enabled in development)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ✅ Middleware pipeline
 app.UseHttpsRedirection();
 
-// ✅ Enable CORS (before auth!)
+// ✅ Enable CORS for Azure Static Web App
 app.UseCors("AllowReactApp");
 
-app.UseAuthentication(); // always before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
