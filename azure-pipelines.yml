@@ -10,7 +10,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   azureAppName: 'edusyncbackend5011' # <-- Replace with your actual App Service name
-  projectPath: 'EduSync\EduSync.csproj' # <-- Adjust this path if your .csproj file is elsewhere
+  projectPath: 'project_final/EduSync/EduSync.csproj' # <-- Adjust this path if your .csproj file is elsewhere
 
 steps:
 - task: UseDotNet@2
@@ -26,7 +26,7 @@ steps:
   displayName: 'Build Project'
 
 # Uncomment this section if you have tests
-- script: dotnet test EduSync.Tests/EduSync.Tests.csproj --no-build --verbosity normal
+- script: dotnet test project_final/EduSync.Tests/EduSync.Tests.csproj --no-build --verbosity normal
   displayName: 'Run Unit Tests'
 
 - script: dotnet publish $(projectPath) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) --no-build
