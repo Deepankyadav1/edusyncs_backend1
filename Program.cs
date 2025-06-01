@@ -24,8 +24,29 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ✅ Database Context (SQL Server)
+var config = builder.Configuration;
+
+// 🌐 Check connection string
+var connectionString = config.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("❌ ERROR: 'DefaultConnection' is NULL or empty!");
+    throw new Exception("❌ Azure failed to load 'DefaultConnection'. Check App Service > Configuration > Connection Strings.");
+}
+else
+{
+    Console.WriteLine("✅ Connection string loaded.");
+}
+
+// 🌐 Check JWT
+Console.WriteLine("✅ JWT Config Check: ");
+Console.WriteLine("Issuer: " + config["Jwt:Issuer"]);
+Console.WriteLine("Audience: " + config["Jwt:Audience"]);
+Console.WriteLine("Key Present: " + (!string.IsNullOrEmpty(config["Jwt:Key"])));
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
+
 
 // ✅ CORS (allow React frontend on localhost)
 builder.Services.AddCors(options =>
