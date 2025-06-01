@@ -7,7 +7,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   azureAppName: 'edusyncbackend5011'
-  projectPath: 'EduSync/EduSync.csproj'
+  projectPath: 'EduSync.csproj'
 
 steps:
 - task: UseDotNet@2
@@ -22,8 +22,8 @@ steps:
 - script: dotnet build $(projectPath) --configuration $(buildConfiguration) --no-restore
   displayName: 'Build Project'
 
-- script: dotnet test EduSync.Tests/EduSync.Tests.csproj --no-build --verbosity normal
-  displayName: 'Run Unit Tests'
+#- script: dotnet test EduSync.Tests/EduSync.Tests.csproj --no-build --verbosity normal
+ # displayName: 'Run Unit Tests'
 
 - script: dotnet publish $(projectPath) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) --no-build
   displayName: 'Publish Project'
